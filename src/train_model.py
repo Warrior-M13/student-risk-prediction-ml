@@ -1,9 +1,11 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.model_selection import cross_val_score
 import joblib
 import os
 
@@ -92,3 +94,41 @@ os.makedirs("reports", exist_ok=True)
 metrics_df.to_csv("reports/model_metrics.csv", index=False)
 
 print("\nMetrics saved to reports/model_metrics.csv")
+
+print("\nCross Validation Scores:")
+
+log_cv = cross_val_score(log_model, X, y, cv=5, scoring="f1")
+rf_cv = cross_val_score(rf_model, X, y, cv=5, scoring="f1")
+svm_cv = cross_val_score(svm_model, X, y, cv=5, scoring="f1")
+
+print("Logistic Regression CV F1:", log_cv.mean())
+print("Random Forest CV F1:", rf_cv.mean())
+print("SVM CV F1:", svm_cv.mean())
+
+# Save Cross Validation Results
+cv_results = pd.DataFrame({
+    "Model": ["Logistic Regression", "Random Forest", "SVM"],
+    "CV_F1_Score": [log_cv.mean(), rf_cv.mean(), svm_cv.mean()]
+})
+
+os.makedirs("reports", exist_ok=True)
+
+cv_results.to_csv("reports/cv_results.csv", index=False)
+
+print("\nCross Validation results saved to reports/cv_results.csv")
+
+# Create Model Comparison Chart
+plt.figure()
+
+plt.bar(
+    cv_results["Model"],
+    cv_results["CV_F1_Score"]
+)
+
+plt.title("Model Comparison (CV F1 Score)")
+plt.xlabel("Model")
+plt.ylabel("F1 Score")
+
+plt.savefig("reports/model_comparison_chart.png")
+
+print("Model comparison chart saved to reports/model_comparison_chart.png")
