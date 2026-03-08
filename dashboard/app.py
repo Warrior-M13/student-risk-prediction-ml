@@ -3,6 +3,7 @@ import pandas as pd
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
+import sqlite3
 
 # ---------------- PATHS ----------------
 RF_MODEL_PATH = r"D:\student-risk-prediction\models\random_forest_model.pkl"
@@ -16,7 +17,10 @@ MODEL_CHART_PATH = r"D:\student-risk-prediction\reports\model_comparison_chart.p
 DATA_PATH = r"D:\student-risk-prediction\data\student_data.csv"
 
 # ---------------- LOAD DATA ----------------
-data_df = pd.read_csv(DATA_PATH)
+conn = sqlite3.connect("data/student_db.sqlite")
+data_df = pd.read_sql("SELECT * FROM students", conn)
+conn.close()
+
 metrics_df = pd.read_csv(METRICS_PATH)
 cv_df = pd.read_csv(CV_RESULTS_PATH)
 

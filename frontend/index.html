@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Student Risk Dashboard</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h2>Student AI</h2>
+
+        <button onclick="showPage('overview')">Overview</button>
+        <button onclick="showPage('prediction')">Prediction Tool</button>
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+        <!-- OVERVIEW PAGE -->
+        <div id="overview" class="page">
+
+            <h1>Dashboard Overview</h1>
+
+            <!-- KPI CARDS -->
+            <div class="cards">
+
+                <div class="card">
+                    <h3>Total Students</h3>
+                    <p>1000</p>
+                </div>
+
+                <div class="card">
+                    <h3>At Risk</h3>
+                    <p>23%</p>
+                </div>
+
+                <div class="card">
+                    <h3>Average GPA</h3>
+                    <p>6.8</p>
+                </div>
+
+            </div>
+
+            <!-- ANALYTICS -->
+            <h2>Analytics</h2>
+
+            <div class="charts">
+
+                <canvas id="riskChart" width="400" height="200"></canvas>
+
+                <canvas id="gpaChart" width="400" height="200"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- PREDICTION PAGE -->
+        <div id="prediction" class="page" style="display:none">
+
+            <h1>Risk Prediction Tool</h1>
+
+            <input id="attendance" placeholder="Attendance %">
+
+            <input id="assignment" placeholder="Assignment Completion">
+
+            <input id="marks" placeholder="Internal Marks">
+
+            <input id="hours" placeholder="Study Hours">
+
+            <input id="gpa" placeholder="Previous GPA">
+
+            <input id="participation" placeholder="Participation Score">
+
+            <button onclick="predict()">Predict Risk</button>
+
+            <h2 id="result"></h2>
+
+            <canvas id="probabilityChart" width="300" height="200"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

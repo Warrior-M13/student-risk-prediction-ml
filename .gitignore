@@ -12,3 +12,6 @@ __pycache__/
 
 # System Files
 .DS_Store
+
+*.pyc
+data/*.sqlite
