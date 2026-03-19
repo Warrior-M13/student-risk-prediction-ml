@@ -1,100 +1,493 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-<title>Student Risk Dashboard</title>
-
-<link rel="stylesheet" href="style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Risk Prediction Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-<div class="dashboard">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <h2>Student AI</h2>
-
-        <button onclick="showPage('overview')">Overview</button>
-        <button onclick="showPage('prediction')">Prediction Tool</button>
+  <!-- ═══ SIDEBAR ═══════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-title">RiskSense</span>
+        <span class="logo-sub">Academic Analytics</span>
+      </div>
     </div>
 
+    <nav class="sidebar-nav">
+      <span class="nav-label">MAIN MENU</span>
+      <a class="nav-item active" data-page="overview" onclick="navigate('overview')">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+        </span>
+        Overview
+      </a>
+      <a class="nav-item" data-page="analytics" onclick="navigate('analytics')">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </span>
+        Data Analytics
+      </a>
+      <a class="nav-item" data-page="performance" onclick="navigate('performance')">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </span>
+        Model Performance
+      </a>
+      <a class="nav-item" data-page="prediction" onclick="navigate('prediction')">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/>
+            <line x1="12" y1="3" x2="12" y2="1"/><line x1="12" y1="23" x2="12" y2="21"/>
+          </svg>
+        </span>
+        Prediction Tool
+      </a>
+    </nav>
 
-    <!-- MAIN CONTENT -->
-    <div class="main">
-
-        <!-- OVERVIEW PAGE -->
-        <div id="overview" class="page">
-
-            <h1>Dashboard Overview</h1>
-
-            <!-- KPI CARDS -->
-            <div class="cards">
-
-                <div class="card">
-                    <h3>Total Students</h3>
-                    <p>1000</p>
-                </div>
-
-                <div class="card">
-                    <h3>At Risk</h3>
-                    <p>23%</p>
-                </div>
-
-                <div class="card">
-                    <h3>Average GPA</h3>
-                    <p>6.8</p>
-                </div>
-
-            </div>
-
-            <!-- ANALYTICS -->
-            <h2>Analytics</h2>
-
-            <div class="charts">
-
-                <canvas id="riskChart" width="400" height="200"></canvas>
-
-                <canvas id="gpaChart" width="400" height="200"></canvas>
-
-            </div>
-
-        </div>
-
-
-        <!-- PREDICTION PAGE -->
-        <div id="prediction" class="page" style="display:none">
-
-            <h1>Risk Prediction Tool</h1>
-
-            <input id="attendance" placeholder="Attendance %">
-
-            <input id="assignment" placeholder="Assignment Completion">
-
-            <input id="marks" placeholder="Internal Marks">
-
-            <input id="hours" placeholder="Study Hours">
-
-            <input id="gpa" placeholder="Previous GPA">
-
-            <input id="participation" placeholder="Participation Score">
-
-            <button onclick="predict()">Predict Risk</button>
-
-            <h2 id="result"></h2>
-
-            <canvas id="probabilityChart" width="300" height="200"></canvas>
-
-        </div>
-
+    <div class="sidebar-footer">
+      <div class="status-dot online"></div>
+      <div class="status-text">
+        <span class="status-title">Backend Online</span>
+        <span class="status-sub">FastAPI · 3 models active</span>
+      </div>
     </div>
+  </aside>
 
-</div>
+  <!-- ═══ MAIN ═══════════════════════════════════════════ -->
+  <main class="main">
 
-<script src="app.js"></script>
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title" id="page-title">Dashboard Overview</h1>
+        <p class="page-sub" id="page-sub">Academic year 2024–25 &nbsp;·&nbsp; 1,000 students tracked</p>
+      </div>
+      <div class="topbar-right">
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">
+          <span class="theme-icon" id="themeIcon">
+            <!-- Moon icon (shown in light mode) -->
+            <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <!-- Sun icon (shown in dark mode) -->
+            <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="display:none">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </span>
+          <span class="theme-label" id="themeLabel">Dark Mode</span>
+        </button>
+        <div class="badge"><span class="badge-dot"></span>Live Data</div>
+      </div>
+    </header>
 
+    <!-- ─── OVERVIEW ─────────────────────────────────── -->
+    <section class="page active" id="page-overview">
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--accent:#6366F1">
+          <div class="kpi-icon" style="background:#EEF2FF">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-label">Total Students</span>
+            <span class="kpi-value" data-target="1000">0</span>
+            <span class="kpi-change positive">▲ Active enrollment</span>
+          </div>
+        </div>
+        <div class="kpi-card" style="--accent:#EF4444">
+          <div class="kpi-icon" style="background:#FEF2F2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-label">At Risk</span>
+            <span class="kpi-value" data-target="535">0</span>
+            <span class="kpi-change negative">▼ 53.5% of cohort</span>
+          </div>
+        </div>
+        <div class="kpi-card" style="--accent:#10B981">
+          <div class="kpi-icon" style="background:#ECFDF5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+              <polyline points="16 7 22 7 22 13"/>
+            </svg>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-label">Average GPA</span>
+            <span class="kpi-value" data-target="6.96" data-decimal="2">0</span>
+            <span class="kpi-change positive">▲ Out of 10.0</span>
+          </div>
+        </div>
+        <div class="kpi-card" style="--accent:#F59E0B">
+          <div class="kpi-icon" style="background:#FFFBEB">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="kpi-body">
+            <span class="kpi-label">Avg Study Hours</span>
+            <span class="kpi-value" data-target="22.2" data-decimal="1">0</span>
+            <span class="kpi-change positive">▲ hrs / week</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header">
+            <div><h3 class="card-title">Risk Distribution</h3><p class="card-sub">Students by risk classification</p></div>
+            <div class="legend-row">
+              <span class="legend-dot" style="background:#10B981"></span><span>Low Risk</span>
+              <span class="legend-dot" style="background:#EF4444"></span><span>High Risk</span>
+            </div>
+          </div>
+          <canvas id="riskDistChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div><h3 class="card-title">GPA Distribution</h3><p class="card-sub">Student count per GPA band</p></div>
+          </div>
+          <canvas id="gpaChart" height="220"></canvas>
+        </div>
+      </div>
+
+      <div class="card full-width" style="margin-top:16px">
+        <div class="card-header">
+          <div><h3 class="card-title">Attendance Distribution</h3><p class="card-sub">Number of students per attendance range</p></div>
+        </div>
+        <canvas id="attendanceChart" height="110"></canvas>
+      </div>
+    </section>
+
+    <!-- ─── ANALYTICS ─────────────────────────────────── -->
+    <section class="page" id="page-analytics">
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header">
+            <div><h3 class="card-title">Study Hours vs GPA</h3><p class="card-sub">Correlation scatter plot</p></div>
+          </div>
+          <canvas id="scatterChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div><h3 class="card-title">Attendance vs Risk</h3><p class="card-sub">Low vs High risk by attendance</p></div>
+          </div>
+          <canvas id="attendRiskChart" height="220"></canvas>
+        </div>
+      </div>
+
+      <div class="charts-row" style="margin-top:16px">
+        <div class="card">
+          <div class="card-header">
+            <div><h3 class="card-title">Correlation Heatmap</h3><p class="card-sub">Feature-to-feature correlation matrix</p></div>
+          </div>
+          <canvas id="corrHeatmap" style="width:100%;display:block;"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div><h3 class="card-title">Confusion Matrix</h3><p class="card-sub">Random Forest predictions on test set</p></div>
+          </div>
+          <div class="confusion-matrix">
+            <div class="cm-label-row">
+              <span></span>
+              <span class="cm-header">Predicted Low</span>
+              <span class="cm-header">Predicted High</span>
+            </div>
+            <div class="cm-row">
+              <span class="cm-row-label">Actual Low</span>
+              <div class="cm-cell tp"><span class="cm-val">428</span><span class="cm-name">True Neg</span></div>
+              <div class="cm-cell fp"><span class="cm-val">37</span><span class="cm-name">False Pos</span></div>
+            </div>
+            <div class="cm-row">
+              <span class="cm-row-label">Actual High</span>
+              <div class="cm-cell fn"><span class="cm-val">21</span><span class="cm-name">False Neg</span></div>
+              <div class="cm-cell tn"><span class="cm-val">114</span><span class="cm-name">True Pos</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card full-width" style="margin-top:16px">
+        <div class="card-header">
+          <div><h3 class="card-title">Dataset Explorer</h3><p class="card-sub">Browse all 1,000 student records</p></div>
+          <div class="table-controls"><span id="table-info" class="table-info">Showing 1–10 of 1000</span></div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="dataTable">
+            <thead>
+              <tr>
+                <th>#</th><th>Attendance %</th><th>Assignment %</th>
+                <th>Int. Marks</th><th>Study Hrs</th><th>GPA</th>
+                <th>Participation</th><th>Risk</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <button class="btn-page" onclick="changePage(-1)" id="prevBtn">← Previous</button>
+          <div class="page-numbers" id="pageNumbers"></div>
+          <button class="btn-page" onclick="changePage(1)" id="nextBtn">Next →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── MODEL PERFORMANCE ─────────────────────────── -->
+    <section class="page" id="page-performance">
+      <div class="model-cards">
+        <div class="model-card">
+          <div class="model-badge">LR</div>
+          <h4>Logistic Regression</h4>
+          <div class="model-metrics">
+            <div class="mm"><span class="mm-label">Accuracy</span><span class="mm-val" id="lr-acc">—</span></div>
+            <div class="mm"><span class="mm-label">Precision</span><span class="mm-val" id="lr-prec">—</span></div>
+            <div class="mm"><span class="mm-label">Recall</span><span class="mm-val" id="lr-rec">—</span></div>
+            <div class="mm"><span class="mm-label">F1 Score</span><span class="mm-val" id="lr-f1">—</span></div>
+          </div>
+        </div>
+        <div class="model-card best">
+          <div class="best-tag">⭐ Best</div>
+          <div class="model-badge rf">RF</div>
+          <h4>Random Forest</h4>
+          <div class="model-metrics">
+            <div class="mm"><span class="mm-label">Accuracy</span><span class="mm-val" id="rf-acc">—</span></div>
+            <div class="mm"><span class="mm-label">Precision</span><span class="mm-val" id="rf-prec">—</span></div>
+            <div class="mm"><span class="mm-label">Recall</span><span class="mm-val" id="rf-rec">—</span></div>
+            <div class="mm"><span class="mm-label">F1 Score</span><span class="mm-val" id="rf-f1">—</span></div>
+          </div>
+        </div>
+        <div class="model-card">
+          <div class="model-badge svm">SVM</div>
+          <h4>Support Vector Machine</h4>
+          <div class="model-metrics">
+            <div class="mm"><span class="mm-label">Accuracy</span><span class="mm-val" id="svm-acc">—</span></div>
+            <div class="mm"><span class="mm-label">Precision</span><span class="mm-val" id="svm-prec">—</span></div>
+            <div class="mm"><span class="mm-label">Recall</span><span class="mm-val" id="svm-rec">—</span></div>
+            <div class="mm"><span class="mm-label">F1 Score</span><span class="mm-val" id="svm-f1">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-row" style="margin-top:20px">
+        <div class="card">
+          <div class="card-header">
+            <div><h3 class="card-title">Accuracy Comparison</h3><p class="card-sub">All three models side by side</p></div>
+          </div>
+          <canvas id="accuracyChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div><h3 class="card-title">Precision · Recall · F1</h3><p class="card-sub">Multi-metric comparison</p></div>
+          </div>
+          <canvas id="metricsChart" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- ROC Curve -->
+      <div class="card full-width" style="margin-top:20px">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">ROC Curve Comparison</h3>
+            <p class="card-sub">Receiver Operating Characteristic — higher AUC = better model</p>
+          </div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:#6366F1"></span><span>Logistic (AUC 0.88)</span>
+            <span class="legend-dot" style="background:#10B981"></span><span>Random Forest (AUC 0.96)</span>
+            <span class="legend-dot" style="background:#F59E0B"></span><span>SVM (AUC 0.93)</span>
+            <span class="legend-dot" style="background:#D1D5DB;border:1px dashed #9CA3AF"></span><span>Random</span>
+          </div>
+        </div>
+        <canvas id="rocChart" height="100"></canvas>
+      </div>
+    </section>
+
+    <!-- ─── PREDICTION TOOL ───────────────────────────── -->
+    <section class="page" id="page-prediction">
+      <div class="prediction-layout">
+
+        <!-- LEFT: inputs -->
+        <div class="prediction-inputs">
+          <div class="card">
+            <div class="card-header">
+              <div><h3 class="card-title">Configure Prediction</h3><p class="card-sub">Adjust parameters and select model</p></div>
+            </div>
+
+            <div class="model-select-wrap">
+              <label class="input-label">Select ML Model</label>
+              <div class="model-tabs">
+                <button class="model-tab active" data-model="rf"      onclick="selectModel('rf',this)">Random Forest</button>
+                <button class="model-tab"         data-model="logistic" onclick="selectModel('logistic',this)">Logistic Reg.</button>
+                <button class="model-tab"         data-model="svm"    onclick="selectModel('svm',this)">SVM</button>
+              </div>
+            </div>
+
+            <div class="sliders-grid">
+              <div class="slider-item">
+                <div class="slider-header"><label>Attendance %</label><span class="slider-val" id="val-attendance">75</span></div>
+                <input type="range" min="40" max="100" value="75" id="sl-attendance" oninput="updateSlider('attendance',this.value)" />
+                <div class="slider-range"><span>40</span><span>100</span></div>
+              </div>
+              <div class="slider-item">
+                <div class="slider-header"><label>Assignment Completion %</label><span class="slider-val" id="val-assignment">70</span></div>
+                <input type="range" min="30" max="100" value="70" id="sl-assignment" oninput="updateSlider('assignment',this.value)" />
+                <div class="slider-range"><span>30</span><span>100</span></div>
+              </div>
+              <div class="slider-item">
+                <div class="slider-header"><label>Internal Marks</label><span class="slider-val" id="val-marks">65</span></div>
+                <input type="range" min="30" max="100" value="65" id="sl-marks" oninput="updateSlider('marks',this.value)" />
+                <div class="slider-range"><span>30</span><span>100</span></div>
+              </div>
+              <div class="slider-item">
+                <div class="slider-header"><label>Study Hours / Week</label><span class="slider-val" id="val-study">20</span></div>
+                <input type="range" min="5" max="40" value="20" id="sl-study" oninput="updateSlider('study',this.value)" />
+                <div class="slider-range"><span>5</span><span>40</span></div>
+              </div>
+              <div class="slider-item">
+                <div class="slider-header"><label>Previous GPA</label><span class="slider-val" id="val-gpa">7.0</span></div>
+                <input type="range" min="4" max="10" step="0.1" value="7" id="sl-gpa" oninput="updateSlider('gpa',this.value)" />
+                <div class="slider-range"><span>4.0</span><span>10.0</span></div>
+              </div>
+              <div class="slider-item">
+                <div class="slider-header"><label>Participation Score</label><span class="slider-val" id="val-participation">5</span></div>
+                <input type="range" min="1" max="10" value="5" id="sl-participation" oninput="updateSlider('participation',this.value)" />
+                <div class="slider-range"><span>1</span><span>10</span></div>
+              </div>
+            </div>
+
+            <!-- Predict + Reset -->
+            <div class="predict-actions">
+              <button class="predict-btn" onclick="runPrediction()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Run Prediction
+              </button>
+              <button class="reset-btn" onclick="resetPrediction()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <polyline points="1 4 1 10 7 10"/>
+                  <path d="M3.51 15a9 9 0 1 0 .49-4.53"/>
+                </svg>
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: results -->
+        <div class="prediction-results">
+          <div class="card gauge-card">
+            <div class="card-header">
+              <div><h3 class="card-title">Risk Gauge</h3><p class="card-sub">Probability of academic risk</p></div>
+            </div>
+            <div class="gauge-wrap">
+              <canvas id="gaugeChart" style="width:100%;height:220px;display:block;"></canvas>
+              <div class="gauge-label">
+                <span class="gauge-prob" id="gauge-prob">—</span>
+                <span class="gauge-verdict" id="gauge-verdict">Run a prediction</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:20px">
+            <div class="card-header">
+              <div><h3 class="card-title">Feature Importance</h3><p class="card-sub">Which factors drove this prediction</p></div>
+            </div>
+            <div id="feature-importance-bars" class="fi-bars">
+              <p class="fi-placeholder">Run a prediction to see feature importance</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Prediction History -->
+      <div class="card full-width" style="margin-top:20px" id="history-section">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Prediction History</h3>
+            <p class="card-sub">Log of all predictions made this session</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span id="history-count" class="table-info">0 predictions</span>
+            <button class="export-btn" onclick="exportCSV()" id="exportBtn" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export CSV
+            </button>
+            <button class="clear-history-btn" onclick="clearHistory()" id="clearBtn" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14H6L5 6"/>
+                <path d="M10 11v6M14 11v6"/>
+              </svg>
+              Clear
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="historyTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Time</th>
+                <th>Model</th>
+                <th>Attendance</th>
+                <th>Assignment</th>
+                <th>Marks</th>
+                <th>Study Hrs</th>
+                <th>GPA</th>
+                <th>Participation</th>
+                <th>Probability</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <tr id="history-empty-row">
+                <td colspan="11" style="text-align:center;color:var(--text-3);padding:28px;">
+                  No predictions yet — run one above to start the log
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
