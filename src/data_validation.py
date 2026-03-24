@@ -1,6 +1,9 @@
 import pandas as pd
+import sqlite3
 
-df = pd.read_csv("data/student_data.csv")
+conn = sqlite3.connect("data/student_db.sqlite")
+df = pd.read_sql("SELECT * FROM students", conn)
+conn.close()
 
 print("Checking Missing Values...")
 print(df.isnull().sum())

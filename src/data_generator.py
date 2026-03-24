@@ -2,10 +2,11 @@ import pandas as pd
 import numpy as np
 import os
 import argparse
+import sqlite3
 
 # Argument parser
 parser = argparse.ArgumentParser()
-parser.add_argument("--rows", type=int, default=1000, help="Number of students to generate")
+parser.add_argument("--rows", type=int, default=2000, help="Number of students to generate")
 args = parser.parse_args()
 
 num_students = args.rows
@@ -41,6 +42,9 @@ df = pd.DataFrame({
 
 os.makedirs("data", exist_ok=True)
 
-df.to_csv("data/student_data.csv", index=False)
+# Directly save to SQLite DB (no CSV)
+conn = sqlite3.connect("data/student_db.sqlite")
+df.to_sql("students", conn, if_exists="replace", index=False)
+conn.close()
 
-print(f"Dataset generated successfully with {num_students} rows")
+print(f"Dataset generated and saved to DB with {num_students} rows")
