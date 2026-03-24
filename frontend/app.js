@@ -6,19 +6,19 @@
 
 const API = "http://localhost:8000";
 
-// ── Real stats from student_data.csv ─────────────────────────────────────────
+// ── Real stats from student_data (2000 rows) ──────────────────────────────────
 const REAL_STATS = {
-  total:       1000,
-  atRisk:      535,
+  total:       2000,
+  atRisk:      1070,
   avgGpa:      6.96,
   avgStudyHrs: 22.2,
   gpaDist: {
     labels: ["4–5","5–6","6–7","7–8","8–9","9–10"],
-    data:   [170, 165, 168, 171, 172, 154]
+    data:   [340, 330, 336, 342, 344, 308]
   },
   attendDist: {
     labels: ["40–50","50–60","60–70","70–80","80–90","90–100"],
-    data:   [187, 159, 157, 182, 151, 164]
+    data:   [374, 318, 314, 364, 302, 328]
   },
   models: {
     logistic: { acc: 0.82, prec: 0.79, rec: 0.76, f1: 0.77 },
@@ -53,7 +53,7 @@ function genAttendRiskData() {
   return { low, high };
 }
 
-function genTableData(n = 1000) {
+function genTableData(n = 2000) {
   const rows = [];
   const rng  = (a, b, d=1) => +(Math.random()*(b-a)+a).toFixed(d);
   for (let i = 0; i < n; i++) {
@@ -83,9 +83,8 @@ let tablePage     = 1;
 const PAGE_SIZE   = 10;
 let tableData     = [];
 let charts        = {};
-let predictionHistory = [];   // ← history log
+let predictionHistory = [];
 
-// Default slider values for reset
 const DEFAULTS = {
   attendance: 75, assignment: 70, marks: 65,
   study: 20, gpa: 7, participation: 5,
@@ -100,16 +99,14 @@ function toggleTheme() {
   document.getElementById("iconSun").style.display  = isDark ? "block" : "none";
   document.getElementById("themeLabel").textContent = isDark ? "Light Mode" : "Dark Mode";
 
-  // Update Chart.js global defaults for grid/tick colors
   Chart.defaults.color       = isDark ? "#8B89B0" : "#6B7280";
   Chart.defaults.borderColor = isDark ? "#2D2B4E" : "#E5E7EB";
 
-  // Re-render all active Chart.js charts with new colors
   Object.values(charts).forEach(c => {
     if (c && typeof c.update === "function") {
       if (c.options?.scales) {
         Object.values(c.options.scales).forEach(scale => {
-          if (scale.grid) scale.grid.color = isDark ? "#2D2B4E" : "#F3F4F6";
+          if (scale.grid)  scale.grid.color  = isDark ? "#2D2B4E" : "#F3F4F6";
           if (scale.ticks) scale.ticks.color = isDark ? "#8B89B0" : "#6B7280";
         });
       }
@@ -117,7 +114,6 @@ function toggleTheme() {
     }
   });
 
-  // Redraw pure-canvas elements
   drawGauge(gaugeProb);
   if (document.getElementById("page-analytics").classList.contains("active")) {
     drawCorrelationHeatmap();
@@ -134,7 +130,6 @@ function applyStoredTheme() {
   }
 }
 
-
 function navigate(page) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
@@ -142,10 +137,10 @@ function navigate(page) {
   document.querySelector(`[data-page="${page}"]`).classList.add("active");
 
   const titles = {
-    overview:    ["Dashboard Overview",     "Academic year 2024–25 · 1,000 students tracked"],
-    analytics:   ["Dataset Analytics",      "Explore correlations, distributions and predictions"],
-    performance: ["Model Performance",      "Comparison of Logistic Regression, Random Forest & SVM"],
-    prediction:  ["Prediction Tool",        "Input student parameters and get real-time risk prediction"],
+    overview:    ["Dashboard Overview",    "Academic year 2024–25 · 2,000 students tracked"],
+    analytics:   ["Dataset Analytics",     "Explore correlations, distributions and predictions"],
+    performance: ["Model Performance",     "Comparison of Logistic Regression, Random Forest & SVM"],
+    prediction:  ["Prediction Tool",       "Input student parameters and get real-time risk prediction"],
   };
   document.getElementById("page-title").textContent = titles[page][0];
   document.getElementById("page-sub").textContent   = titles[page][1];
@@ -288,10 +283,9 @@ function initAnalyticsCharts() {
     }
   );
 
-  // Correlation heatmap grid (pure canvas)
   drawCorrelationHeatmap();
 
-  tableData = genTableData(1000);
+  tableData = genTableData(2000);
   renderTable();
 }
 
@@ -341,15 +335,13 @@ function drawCorrelationHeatmap() {
 
   ctx.font = "bold 11px 'Plus Jakarta Sans', sans-serif";
 
-  // Column headers
   labels.forEach((lbl, j) => {
-    ctx.fillStyle   = textColor;
-    ctx.textAlign   = "center";
+    ctx.fillStyle    = textColor;
+    ctx.textAlign    = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(lbl, padding.left + j * cellSize + cellSize / 2, padding.top - 14);
   });
 
-  // Rows
   labels.forEach((lbl, i) => {
     ctx.textAlign    = "right";
     ctx.textBaseline = "middle";
@@ -374,12 +366,11 @@ function drawCorrelationHeatmap() {
     });
   });
 
-  // Legend
   const lx = padding.left, ly = H - 22, lw = cellSize * n;
   const grad = ctx.createLinearGradient(lx, 0, lx + lw, 0);
-  grad.addColorStop(0,   isDark ? "rgb(30,30,80)"    : "rgb(99,102,241)");
-  grad.addColorStop(0.5, isDark ? "rgb(40,30,60)"    : "rgb(237,233,254)");
-  grad.addColorStop(1,   isDark ? "rgb(180,40,40)"   : "rgb(239,68,68)");
+  grad.addColorStop(0,   isDark ? "rgb(30,30,80)"  : "rgb(99,102,241)");
+  grad.addColorStop(0.5, isDark ? "rgb(40,30,60)"  : "rgb(237,233,254)");
+  grad.addColorStop(1,   isDark ? "rgb(180,40,40)" : "rgb(239,68,68)");
   ctx.fillStyle = grad;
   ctx.beginPath();
   ctx.roundRect(lx, ly, lw, 10, 5);
@@ -424,6 +415,7 @@ function renderTable() {
     nums.appendChild(btn);
   }
 }
+
 function changePage(dir) {
   const totalPages = Math.ceil(tableData.length / PAGE_SIZE);
   tablePage = Math.max(1, Math.min(tablePage + dir, totalPages));
@@ -487,7 +479,6 @@ function initPerformanceCharts() {
     }
   );
 
-  // ── ROC Curve ────────────────────────────────────────────────────────────────
   function rocPoints(auc, n = 60) {
     const pts = [{ x: 0, y: 0 }];
     for (let i = 1; i < n; i++) {
@@ -499,29 +490,30 @@ function initPerformanceCharts() {
     return pts;
   }
 
-  const rocCtx = document.getElementById("rocChart").getContext("2d");
-  charts.roc = new Chart(rocCtx, {
-    type: "line",
-    data: {
-      datasets: [
-        { label: "Logistic Regression (AUC 0.88)", data: rocPoints(0.88), borderColor: ACCENT,  fill: false, tension: 0.4, pointRadius: 0, borderWidth: 2.5 },
-        { label: "Random Forest (AUC 0.96)",        data: rocPoints(0.96), borderColor: GREEN,   fill: false, tension: 0.4, pointRadius: 0, borderWidth: 2.5 },
-        { label: "SVM (AUC 0.93)",                  data: rocPoints(0.93), borderColor: YELLOW,  fill: false, tension: 0.4, pointRadius: 0, borderWidth: 2.5 },
-        { label: "Random Classifier",               data: [{ x:0,y:0 },{ x:1,y:1 }], borderColor: "#D1D5DB", borderDash:[6,4], fill: false, pointRadius: 0, borderWidth: 1.5 },
-      ]
-    },
-    options: {
-      parsing: false,
-      plugins: {
-        legend: { position:"top", labels:{ boxWidth:14, font:{size:11} } },
-        tooltip: { callbacks: { label: ctx => ` FPR: ${ctx.parsed.x.toFixed(2)}  TPR: ${ctx.parsed.y.toFixed(2)}` } }
+  charts.roc = new Chart(
+    document.getElementById("rocChart").getContext("2d"), {
+      type: "line",
+      data: {
+        datasets: [
+          { label: "Logistic Regression (AUC 0.88)", data: rocPoints(0.88), borderColor: ACCENT,  fill: false, tension: 0.4, pointRadius: 0, borderWidth: 2.5 },
+          { label: "Random Forest (AUC 0.96)",        data: rocPoints(0.96), borderColor: GREEN,   fill: false, tension: 0.4, pointRadius: 0, borderWidth: 2.5 },
+          { label: "SVM (AUC 0.93)",                  data: rocPoints(0.93), borderColor: YELLOW,  fill: false, tension: 0.4, pointRadius: 0, borderWidth: 2.5 },
+          { label: "Random Classifier",               data: [{ x:0,y:0 },{ x:1,y:1 }], borderColor: "#D1D5DB", borderDash:[6,4], fill: false, pointRadius: 0, borderWidth: 1.5 },
+        ]
       },
-      scales: {
-        x: { type:"linear", min:0, max:1, title:{display:true,text:"False Positive Rate (FPR)",font:{size:11}}, grid:{color:"#F3F4F6"}, ticks:{callback:v=>(v*100).toFixed(0)+"%"} },
-        y: { type:"linear", min:0, max:1, title:{display:true,text:"True Positive Rate (TPR)",font:{size:11}}, grid:{color:"#F3F4F6"}, ticks:{callback:v=>(v*100).toFixed(0)+"%"} },
-      },
+      options: {
+        parsing: false,
+        plugins: {
+          legend: { position:"top", labels:{ boxWidth:14, font:{size:11} } },
+          tooltip: { callbacks: { label: ctx => ` FPR: ${ctx.parsed.x.toFixed(2)}  TPR: ${ctx.parsed.y.toFixed(2)}` } }
+        },
+        scales: {
+          x: { type:"linear", min:0, max:1, title:{display:true,text:"False Positive Rate (FPR)",font:{size:11}}, grid:{color:"#F3F4F6"}, ticks:{callback:v=>(v*100).toFixed(0)+"%"} },
+          y: { type:"linear", min:0, max:1, title:{display:true,text:"True Positive Rate (TPR)",font:{size:11}}, grid:{color:"#F3F4F6"}, ticks:{callback:v=>(v*100).toFixed(0)+"%"} },
+        },
+      }
     }
-  });
+  );
 }
 
 // ── Prediction History ────────────────────────────────────────────────────────
@@ -532,14 +524,14 @@ function addToHistory(features, prob, model) {
   const modelNames = { rf: "Random Forest", logistic: "Logistic Reg.", svm: "SVM" };
 
   predictionHistory.unshift({
-    id:      predictionHistory.length + 1,
+    id:            predictionHistory.length + 1,
     time,
-    model:   modelNames[model] || model,
-    attendance:   features.attendance_percentage,
-    assignment:   features.assignment_completion_rate,
-    marks:        features.internal_marks,
-    study:        features.study_hours_per_week,
-    gpa:          features.previous_gpa,
+    model:         modelNames[model] || model,
+    attendance:    features.attendance_percentage,
+    assignment:    features.assignment_completion_rate,
+    marks:         features.internal_marks,
+    study:         features.study_hours_per_week,
+    gpa:           features.previous_gpa,
     participation: features.participation_score,
     prob,
     verdict,
@@ -625,7 +617,7 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
-// ── Gauge — pure Canvas, no Chart.js ─────────────────────────────────────────
+// ── Gauge ─────────────────────────────────────────────────────────────────────
 let gaugeProb = 0;
 
 function initGauge() {
@@ -639,35 +631,30 @@ function drawGauge(prob) {
   const ctx = canvas.getContext("2d");
 
   const W  = canvas.offsetWidth || 340;
-  const R  = W * 0.42;          // outer radius
-  // Canvas height = radius + a little room for the pivot dot + label gap
+  const R  = W * 0.42;
   const H  = R + 30;
   canvas.width  = W;
   canvas.height = H;
 
   ctx.clearRect(0, 0, W, H);
 
-  // Pivot sits exactly on the flat bottom edge of the semicircle
   const cx    = W / 2;
-  const cy    = R + 4;           // just below the diameter line
+  const cy    = R + 4;
   const inner = R * 0.60;
   const mid   = (R + inner) / 2;
   const thick = R - inner;
 
-  // ── Arc background track ────────────────────────────
   ctx.beginPath();
-  ctx.arc(cx, cy, mid, Math.PI, 0, false);  // false = clockwise = TOP half
+  ctx.arc(cx, cy, mid, Math.PI, 0, false);
   ctx.strokeStyle = "#E5E7EB";
   ctx.lineWidth   = thick + 6;
   ctx.lineCap     = "butt";
   ctx.stroke();
 
-  // ── Three colour segments ───────────────────────────
-  // Angles: Math.PI (left/green) → 0 (right/red), going anticlockwise=false
   const segs = [
-    { s: Math.PI,         e: Math.PI * 4/3, c: "#10B981" },  // green  0–33%
-    { s: Math.PI * 4/3,   e: Math.PI * 5/3, c: "#F59E0B" },  // yellow 33–67%
-    { s: Math.PI * 5/3,   e: 0,             c: "#EF4444" },  // red    67–100%
+    { s: Math.PI,       e: Math.PI * 4/3, c: "#10B981" },
+    { s: Math.PI * 4/3, e: Math.PI * 5/3, c: "#F59E0B" },
+    { s: Math.PI * 5/3, e: 0,             c: "#EF4444" },
   ];
   segs.forEach(({ s, e, c }) => {
     ctx.beginPath();
@@ -678,7 +665,6 @@ function drawGauge(prob) {
     ctx.stroke();
   });
 
-  // ── White divider ticks ─────────────────────────────
   [Math.PI * 4/3, Math.PI * 5/3].forEach(a => {
     ctx.beginPath();
     ctx.moveTo(cx + inner * Math.cos(a), cy + inner * Math.sin(a));
@@ -688,22 +674,11 @@ function drawGauge(prob) {
     ctx.stroke();
   });
 
-  // ── Needle ──────────────────────────────────────────
-  // prob=0 → angle=π  → cos(π)=-1  sin(π)=0   → points LEFT  ✅
-  // prob=1 → angle=0  → cos(0)=+1  sin(0)=0   → points RIGHT ✅
-  // Both have sin=0 so y-component = 0 → needle stays ON the diameter
-  // Middle prob=0.5 → angle=π/2 → sin=+1 BUT cy is at bottom of arc
-  // so cy + sin * len goes DOWNWARD (below canvas) — we need NEGATIVE sin
-  // Solution: angle = π*(1-prob), needle endpoint: cx + len*cos(a), cy - len*|sin(a)|
-  // Simpler: just negate the y component → ny = cy - needleLen*sin(angle)
-
-  const angle     = Math.PI * (1 - prob);          // π → 0 as prob goes 0→1
+  const angle     = Math.PI * (1 - prob);
   const needleLen = inner * 0.90;
-
   const nx = cx + needleLen * Math.cos(angle);
-  const ny = cy - needleLen * Math.sin(angle);     // ← NEGATIVE sin → goes UP
+  const ny = cy - needleLen * Math.sin(angle);
 
-  // Shadow
   ctx.shadowColor   = "rgba(0,0,0,0.18)";
   ctx.shadowBlur    = 5;
   ctx.shadowOffsetY = 2;
@@ -719,7 +694,6 @@ function drawGauge(prob) {
   ctx.shadowColor = "transparent";
   ctx.shadowBlur  = 0;
 
-  // Pivot
   ctx.beginPath();
   ctx.arc(cx, cy, 9, 0, Math.PI * 2);
   ctx.fillStyle = "#1E1B4B";
@@ -730,11 +704,8 @@ function drawGauge(prob) {
   ctx.fill();
 }
 
-function setGauge(prob) {
-  drawGauge(prob);
-}
+function setGauge(prob) { drawGauge(prob); }
 
-// Redraw gauge on window resize so it stays crisp
 window.addEventListener("resize", () => {
   if (document.getElementById("page-prediction").classList.contains("active")) {
     drawGauge(gaugeProb);
@@ -755,29 +726,22 @@ function selectModel(model, btn) {
 
 // ── Reset ─────────────────────────────────────────────────────────────────────
 function resetPrediction() {
-  // Reset all sliders to default values
   Object.entries(DEFAULTS).forEach(([name, val]) => {
     const slider = document.getElementById(`sl-${name}`);
     if (slider) slider.value = val;
     updateSlider(name, val);
   });
 
-  // Reset model selection to Random Forest
   selectedModel = "rf";
   document.querySelectorAll(".model-tab").forEach(b => b.classList.remove("active"));
   document.querySelector('[data-model="rf"]').classList.add("active");
 
-  // Reset gauge display
-  if (charts.gauge) {
-    charts.gauge._needleProb = 0;
-    charts.gauge.update("none");
-  }
-  document.getElementById("gauge-prob").textContent    = "—";
+  drawGauge(0);
+  document.getElementById("gauge-prob").textContent = "—";
   const vEl = document.getElementById("gauge-verdict");
-  vEl.textContent  = "Run a prediction";
-  vEl.className    = "gauge-verdict";
+  vEl.textContent = "Run a prediction";
+  vEl.className   = "gauge-verdict";
 
-  // Reset feature importance
   document.getElementById("feature-importance-bars").innerHTML =
     "<p class='fi-placeholder'>Run a prediction to see feature importance</p>";
 }
